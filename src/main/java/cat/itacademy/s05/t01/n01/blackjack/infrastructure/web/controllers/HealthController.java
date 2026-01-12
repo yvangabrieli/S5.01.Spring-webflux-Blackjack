@@ -1,4 +1,4 @@
-package com.example.blackjack.infrastructure.web.controllers;
+package cat.itacademy.s05.t01.n01.blackjack.infrastructure.web.controllers;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
