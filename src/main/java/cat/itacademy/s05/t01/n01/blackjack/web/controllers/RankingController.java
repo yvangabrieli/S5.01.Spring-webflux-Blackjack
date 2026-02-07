@@ -1,7 +1,6 @@
 package cat.itacademy.s05.t01.n01.blackjack.web.controllers;
 
 import cat.itacademy.s05.t01.n01.blackjack.application.ranking.port.in.GetRankingUseCase;
-import cat.itacademy.s05.t01.n01.blackjack.application.ranking.view.RankingEntry;
 import cat.itacademy.s05.t01.n01.blackjack.web.dto.response.RankingResponse;
 import cat.itacademy.s05.t01.n01.blackjack.web.mapper.RankingResponseMapper;
 import lombok.RequiredArgsConstructor;
