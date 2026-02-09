@@ -3,16 +3,22 @@ package cat.itacademy.s05.t01.n01.blackjack.domain.model.aggregates;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.entity.Hand;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject.Card;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject.Money;
-
+import jakarta.persistence.*;
 
 import java.util.UUID;
 
+@Entity
+@Table(name = "players")
 public class Player {
-
+    @Id
+    @Column (columnDefinition = "BINARY(16)")
     private final UUID id;
     private String name;
+    @OneToOne(cascade = CascadeType.ALL)
     private final Hand hand;
+    @Embedded
     private Money money;
+    @Embedded
     private Money currentBet = new Money(0);
 
     public Player(UUID id, String name, Money initialMoney) {
@@ -63,6 +69,4 @@ public class Player {
     public void clearBet(){
         this.currentBet = new Money(0);
     }
-
-
 }

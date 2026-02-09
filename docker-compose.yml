@@ -1,0 +1,44 @@
+name: blackjack
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: blackjack-mysql
+    environment:
+      MYSQL_DATABASE: blackjack
+      MYSQL_USER: blackjack
+      MYSQL_PASSWORD: blackjack
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    restart: always
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  mongo:
+    image: mongo:6.0
+    container_name: blackjack-mongo
+    ports:
+      - "27017:27017"
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+
+  api:
+    build: .
+    image: blackjack-api
+    container_name: blackjack-api
+    depends_on:
+      - mysql
+      - mongo
+    ports:
+      - "8080:8080"
+    restart: always
+
+volumes:
+  mysql_data:
+  mongo_data:
+
+networks:
+  default:
+    name: blackjack_default

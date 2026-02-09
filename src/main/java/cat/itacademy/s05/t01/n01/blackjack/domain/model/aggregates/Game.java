@@ -12,14 +12,21 @@ import cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject.Money;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject.Score;
 import cat.itacademy.s05.t01.n01.blackjack.domain.service.BlackjackDomainService;
 
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Document(collection = "games")
 public class Game {
 
+    @Id
     private final UUID id;
     private GameStatus status;
     private final List<Player> players;
@@ -53,13 +60,16 @@ public class Game {
     // Aggregate Methods
     // ------------------------
 
-    public void addPlayer(Player player) {
+    public void addPlayer(UUID playerId) {
         if (status != GameStatus.NOT_STARTED) {
             throw new InvalidMoveException("Cannot add player once game started");
         }
         if (players.size() >= MAX_PLAYERS) {
             throw new InvalidMoveException("Max players reached");
         }
+        String defaultName = "Player " + (players.size() + 1); // e.g., Player 1, Player 2
+        Money defaultMoney = new Money(100);
+        Player player = new Player(playerId, defaultName, defaultMoney);
         players.add(player);
         updatedAt = Instant.now();
     }

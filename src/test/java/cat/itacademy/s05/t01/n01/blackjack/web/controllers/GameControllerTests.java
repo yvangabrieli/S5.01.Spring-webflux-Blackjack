@@ -125,7 +125,7 @@ public class GameControllerTests {
         UUID playerId = randomUUID();
         Game game = new Game(gameId);
         Player player = new Player(playerId, "John", new Money(200) );
-        game.addPlayer(player);
+        game.addPlayer(playerId);
         game.start();
 
         when(playGameUseCase.play(gameId, playerId, MoveType.HIT))
