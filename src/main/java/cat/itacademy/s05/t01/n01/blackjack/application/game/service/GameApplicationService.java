@@ -31,7 +31,7 @@ public class GameApplicationService implements CreateGameUseCase, AddPlayerToGam
     public Game addPlayer(UUID gameId, String playerName, Money initialMoney){
        Game game = getGame(gameId);
        Player newPlayer = new Player(UUID.randomUUID(), playerName, initialMoney);
-       game.addPlayer(newPlayer);
+       game.addPlayer(newPlayer.getId());
        gameRepository.save(game);
        return game;
     }
