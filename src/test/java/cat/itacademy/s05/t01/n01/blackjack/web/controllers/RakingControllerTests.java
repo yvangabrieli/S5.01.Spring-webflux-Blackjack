@@ -12,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -33,7 +34,7 @@ public class RakingControllerTests {
 
     @Test
     void shouldReturnRanking() {
-        // given
+        UUID gameId = UUID.randomUUID();
         List<RankingEntry> ranking = List.of(
                 new RankingEntry(
                         UUID.randomUUID(),
@@ -47,11 +48,14 @@ public class RakingControllerTests {
                 )
         );
 
-        when(getRankingUseCase.getRanking()).thenReturn(ranking);
+        when(getRankingUseCase.getRanking(gameId)).thenReturn(Mono.just(ranking));
 
-        // when + then
         webTestClient.get()
-                .uri("/ranking")
+                .uri(uriBuilder -> uriBuilder
+                        .path("/ranking")
+                        .queryParam("gameId", gameId)
+                        .build()
+                )
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(Object.class)
