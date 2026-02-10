@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
-@Document (collection = "games")
 public class GameDocument {
     @Id
     private UUID id;

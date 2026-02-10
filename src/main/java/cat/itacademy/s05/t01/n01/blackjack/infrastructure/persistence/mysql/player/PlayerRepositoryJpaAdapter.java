@@ -3,10 +3,12 @@ package cat.itacademy.s05.t01.n01.blackjack.infrastructure.persistence.mysql.pla
 import cat.itacademy.s05.t01.n01.blackjack.application.player.port.out.PlayerRepositoryPort;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.aggregates.Player;
 import cat.itacademy.s05.t01.n01.blackjack.infrastructure.persistence.mysql.mapper.PlayerEntityMapper;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class PlayerRepositoryJpaAdapter implements PlayerRepositoryPort {
 
     private final SpringDataPlayerJpaRepository repository;

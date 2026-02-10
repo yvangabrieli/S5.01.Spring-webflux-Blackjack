@@ -1,22 +1,16 @@
 package cat.itacademy.s05.t01.n01.blackjack.config;
-
-import com.mongodb.reactivestreams.client.MongoClient;
-import com.mongodb.reactivestreams.client.MongoClients;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
 @Configuration
-@EnableReactiveMongoRepositories(basePackages = "cat.itacademy.s05.t01.n01.blackjack.infrastructure.persistence.mongodb")
+@EnableReactiveMongoRepositories(
+        basePackages = "cat.itacademy.s05.t01.n01.blackjack.infrastructure.persistence.mongodb"
+)
 public class MongoReactiveConfig extends AbstractReactiveMongoConfiguration {
 
     @Override
     protected String getDatabaseName() {
-        return "blackjack_db";
-    }
-
-    @Override
-    public MongoClient reactiveMongoClient() {
-        return MongoClients.create("mongodb://localhost:27017");
+        return "blackjack";
     }
 }
