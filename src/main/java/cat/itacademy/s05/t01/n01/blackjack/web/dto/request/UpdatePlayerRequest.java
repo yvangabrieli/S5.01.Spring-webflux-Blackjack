@@ -3,17 +3,18 @@ package cat.itacademy.s05.t01.n01.blackjack.web.dto.request;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject.Money;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import lombok.NoArgsConstructor;
 
-@NotNull
+
 @NoArgsConstructor
 
 public class UpdatePlayerRequest {
-    @NotNull (message =  "Name cannot be null")
-
+    @NotBlank
     private String name;
+    @NotNull (message =  "Name cannot be null")
     private Money money;
 
     @JsonCreator
