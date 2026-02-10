@@ -1,14 +1,20 @@
 package cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
-public class Money {
 
+public class Money {
+    @NotNull
     private final BigDecimal amount;
 
-    public Money(double amount) {
+    @JsonCreator
+    public Money(@JsonProperty ("amount") double amount) {
         this.amount = BigDecimal.valueOf(amount).setScale(2, BigDecimal.ROUND_HALF_EVEN);
     }
 
