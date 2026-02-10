@@ -7,9 +7,11 @@ import cat.itacademy.s05.t01.n01.blackjack.application.player.port.out.PlayerRep
 import cat.itacademy.s05.t01.n01.blackjack.domain.exception.PlayerNotFoundException;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.aggregates.Player;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject.Money;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Service
 public class PlayerApplicationService implements DeletePlayerUseCase, GetPlayerUseCase, UpdatePlayerUseCase {
     private final PlayerRepositoryPort repositoryPort;
 

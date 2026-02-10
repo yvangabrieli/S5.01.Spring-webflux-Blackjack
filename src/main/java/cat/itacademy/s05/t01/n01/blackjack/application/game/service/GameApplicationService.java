@@ -8,52 +8,62 @@ import cat.itacademy.s05.t01.n01.blackjack.domain.model.aggregates.Player;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.enums.MoveType;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject.Money;
 import org.springframework.stereotype.Service;
-
+import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
 @Service
-public class GameApplicationService implements CreateGameUseCase, AddPlayerToGameUseCase, DeleteGameUseCase, GetGameUseCase, PlayGameUseCase {
+public class GameApplicationService implements
+        CreateGameUseCase,
+        AddPlayerToGameUseCase,
+        DeleteGameUseCase,
+        GetGameUseCase,
+        PlayGameUseCase {
 
     private final GameRepositoryPort gameRepository;
 
-    public  GameApplicationService (GameRepositoryPort gameRepository){
+    public GameApplicationService(GameRepositoryPort gameRepository) {
         this.gameRepository = gameRepository;
     }
 
     @Override
-    public UUID createGame() {
+    public Mono<UUID> createGame() {
         Game newGame = new Game(UUID.randomUUID());
-        gameRepository.save(newGame);
-        return newGame.getId();
-    }
-    @Override
-    public Game addPlayer(UUID gameId, String playerName, Money initialMoney){
-       Game game = getGame(gameId);
-       Player newPlayer = new Player(UUID.randomUUID(), playerName, initialMoney);
-       game.addPlayer(newPlayer.getId());
-       gameRepository.save(game);
-       return game;
-    }
-
-
-    @Override
-    public void deleteGame(UUID gameId) {
-        Game game = getGame(gameId);
-        gameRepository.deleteById(game.getId());
+        return gameRepository.save(newGame)
+                .thenReturn(newGame.getId());
     }
 
     @Override
-    public Game getGame(UUID gameId) {
+    public Mono<Game> addPlayer(UUID gameId, String playerName, Money initialMoney) {
         return gameRepository.findById(gameId)
-                .orElseThrow(()-> new GameNotFoundException(gameId));
+                .switchIfEmpty(Mono.error(new GameNotFoundException(gameId)))
+                .map(game -> {
+                    Player player = new Player(UUID.randomUUID(), playerName, initialMoney);
+                    game.addPlayer(player.getId());
+                    return game;
+                })
+                .flatMap(gameRepository::save);
     }
 
     @Override
-    public Game play(UUID gameId, UUID playerId, MoveType moveType) {
-        Game game = getGame(gameId);
-        game.play(playerId, moveType);
-        gameRepository.save(game);
-        return game;
-        }
+    public Mono<Void> deleteGame(UUID gameId) {
+        return getGame(gameId)
+                .flatMap(game -> gameRepository.deleteById(game.getId()));
+    }
+
+    @Override
+    public Mono<Game> getGame(UUID gameId) {
+        return gameRepository.findById(gameId)
+                .switchIfEmpty(Mono.error(new GameNotFoundException(gameId)));
+    }
+
+    @Override
+    public Mono<Game> play(UUID gameId, UUID playerId, MoveType moveType) {
+        return getGame(gameId)
+                .map(game -> {
+                    game.play(playerId, moveType);
+                    return game;
+                })
+                .flatMap(gameRepository::save);
+    }
 }

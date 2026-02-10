@@ -12,10 +12,10 @@ import cat.itacademy.s05.t01.n01.blackjack.infrastructure.persistence.mongodb.ma
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -24,17 +24,18 @@ import java.util.UUID;
 public class GameRepositoryMongoAdapter implements GameRepositoryPort {
     public final SpringDataGameMongoRepository repository;
     @Override
-    public void save(Game game){
-        repository.save(toDocument(game));
+    public Mono<Game> save(Game game){
+        GameDocument document = toDocument(game);
+        return repository.save(document).map(this::toDomain);
     }
     @Override
-    public Optional<Game> findById(UUID gameId){
+    public Mono<Game> findById(UUID gameId){
         return repository.findById(gameId).map(this::toDomain);
     }
     @Override
-    public void deleteById(UUID gameId){
-        repository.deleteById(gameId);
-    }
+    public Mono<Void> deleteById(UUID gameId) {
+       return repository.deleteById(gameId);
+    };
 
     private GameDocument toDocument(Game game) {
         GameDocument doc = new GameDocument();
@@ -46,10 +47,11 @@ public class GameRepositoryMongoAdapter implements GameRepositoryPort {
         doc.setUpdatedAt(game.getUpdatedAt().toEpochMilli());
 
 // Store Players ids
-        List<UUID> playerIds = game.getPlayers().stream()
-                .map(Player::getId)
-                .toList();
-        doc.setPlayerIds(playerIds);
+       doc.setPlayerIds(
+               game.getPlayers().stream()
+                       .map(Player::getId)
+                       .toList()
+       );
 // Deck
         doc.setDeck(game.getDeck().getCards()
                         .stream()
@@ -60,23 +62,23 @@ public class GameRepositoryMongoAdapter implements GameRepositoryPort {
                 .map(CardDocument::fromDomain)
                 .toList());
 // if wins
-        if (game.getWinner() != null) {
-            doc.setWinnerId(game.getWinner().orElseThrow().getId());
-        }
-
+        game.getWinner().ifPresent(winner ->
+                doc.setWinnerId(winner.getId())
+        );
         return doc;
     }
         private Game toDomain (GameDocument doc){
             Game game = new Game(doc.getId());
+
             game.setStatus(GameStatus.valueOf(doc.getStatus()));
             game.setCurrentPlayerIndex(doc.getCurrentPlayerIndex());
             game.setPot(new Money(doc.getPotAmount()));
 
             //Players
             game.getPlayers().clear();
-            for (UUID playerId : doc.getPlayerIds()){
-                game.getPlayers().add(new Player(playerId, "unknown", new Money(0)));
-            }
+            doc.getPlayerIds().forEach(id ->
+                    game.getPlayers().add(new Player(id, "unknown", new Money(0)))
+            );
 
             // Deck
             List<Card> deckCards = doc.getDeck().stream()
@@ -93,11 +95,10 @@ public class GameRepositoryMongoAdapter implements GameRepositoryPort {
 
             // Winner
             if (doc.getWinnerId() != null) {
-                Player winner = game.getPlayers().stream()
+                game.getPlayers().stream()
                         .filter(p -> p.getId().equals(doc.getWinnerId()))
                         .findFirst()
-                        .orElse(new Player(doc.getWinnerId(), "unknown", new Money(0)));
-                game.setWinner(winner);
+                        .ifPresent(game::setWinner);
             }
 
             game.setUpdatedAt(Instant.ofEpochMilli(doc.getUpdatedAt()));
