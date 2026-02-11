@@ -2,8 +2,10 @@ package cat.itacademy.s05.t01.n01.blackjack;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
+@ComponentScan(basePackages = "cat.itacademy.s05.t01.n01.blackjack")
 public class BlackjackApplication {
 
 	public static void main(String[] args) {
