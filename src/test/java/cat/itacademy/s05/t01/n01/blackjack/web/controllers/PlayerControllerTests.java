@@ -58,7 +58,9 @@ public class PlayerControllerTests {
             String json = """
             {
                 "name" : "New Name",
-                "money" : 500
+                "money": {
+                          "amount": 500
+                        }
             }
             """;
 

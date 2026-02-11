@@ -1,17 +1,18 @@
-package cat.itacademy.s05.t01.n01.blackjack.application.ranking.service;
+package cat.itacademy.s05.t01.n01.blackjack.application.ranking.port.adapter;
 
 import cat.itacademy.s05.t01.n01.blackjack.application.game.port.out.GameRepositoryPort;
 import cat.itacademy.s05.t01.n01.blackjack.application.ranking.port.out.LoadRankingPort;
 import cat.itacademy.s05.t01.n01.blackjack.application.ranking.view.RankingEntry;
 
 
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.UUID;
 
-
+@Repository
 public class LoadPlayerFromGamesAdapter implements LoadRankingPort {
     private final GameRepositoryPort gameRepositoryPort;
 

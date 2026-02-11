@@ -34,7 +34,12 @@ services:
     ports:
       - "8080:8080"
     restart: always
-
+    command: >
+     bash -c "
+      ./wait-for-it.sh blackjack-mysql 3306 -- 
+      ./wait-for-it.sh blackjack-mongo 27017 -- 
+      java -jar app.jar
+     "
 volumes:
   mysql_data:
   mongo_data:

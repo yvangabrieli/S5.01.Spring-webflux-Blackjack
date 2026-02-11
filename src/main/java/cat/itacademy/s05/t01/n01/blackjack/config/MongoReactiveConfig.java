@@ -10,6 +10,11 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
 public class MongoReactiveConfig extends AbstractReactiveMongoConfiguration {
 
     @Override
+    public com.mongodb.reactivestreams.client.MongoClient reactiveMongoClient() {
+        return com.mongodb.reactivestreams.client.MongoClients.create("mongodb://blackjack-mongo:27017/blackjack");
+    }
+
+    @Override
     protected String getDatabaseName() {
         return "blackjack";
     }

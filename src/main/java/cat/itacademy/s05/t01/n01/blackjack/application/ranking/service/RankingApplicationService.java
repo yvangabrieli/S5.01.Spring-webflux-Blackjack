@@ -4,6 +4,7 @@ import cat.itacademy.s05.t01.n01.blackjack.application.ranking.port.in.GetRankin
 import cat.itacademy.s05.t01.n01.blackjack.application.ranking.port.out.LoadRankingPort;
 import cat.itacademy.s05.t01.n01.blackjack.application.ranking.view.RankingEntry;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
             @Service
-            @Primary
+            @Qualifier("rankingApplicationService")
             public class RankingApplicationService implements GetRankingUseCase {
                 private final LoadRankingPort loadRankingPort;
 
