@@ -1,11 +1,9 @@
 package cat.itacademy.s05.t01.n01.blackjack.application.ranking.view;
 
-import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@Component
+
 public class RankingEntry {
     private final UUID playerId;
     private final String playerName;
