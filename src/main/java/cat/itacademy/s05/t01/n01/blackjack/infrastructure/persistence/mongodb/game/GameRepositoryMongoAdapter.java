@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,10 +76,11 @@ public class GameRepositoryMongoAdapter implements GameRepositoryPort {
             game.setPot(new Money(doc.getPotAmount()));
 
             //Players
-            game.getPlayers().clear();
+            List<Player> playersList = new ArrayList<>();
             doc.getPlayerIds().forEach(id ->
-                    game.getPlayers().add(new Player(id, "unknown", new Money(0)))
+                    playersList.add(new Player(id, "unknown", new Money(0)))
             );
+            game.setPlayers(playersList);
 
             // Deck
             List<Card> deckCards = doc.getDeck().stream()
