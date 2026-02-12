@@ -9,6 +9,7 @@ import cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject.Deck;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject.Money;
 
 import cat.itacademy.s05.t01.n01.blackjack.infrastructure.persistence.mongodb.mapper.CardDocument;
+import cat.itacademy.s05.t01.n01.blackjack.infrastructure.persistence.mongodb.mapper.PlayerDocument;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -48,11 +49,11 @@ public class GameRepositoryMongoAdapter implements GameRepositoryPort {
         doc.setUpdatedAt(game.getUpdatedAt().toEpochMilli());
 
 // Store Players ids
-       doc.setPlayerIds(
-               game.getPlayers().stream()
-                       .map(Player::getId)
-                       .toList()
-       );
+        doc.setPlayers(
+                game.getPlayers().stream()
+                        .map(PlayerDocument::fromDomain)
+                        .toList()
+        );
 // Deck
         doc.setDeck(game.getDeck().getCards()
                         .stream()
@@ -76,10 +77,9 @@ public class GameRepositoryMongoAdapter implements GameRepositoryPort {
             game.setPot(new Money(doc.getPotAmount()));
 
             //Players
-            List<Player> playersList = new ArrayList<>();
-            doc.getPlayerIds().forEach(id ->
-                    playersList.add(new Player(id, "unknown", new Money(0)))
-            );
+            List<Player> playersList = doc.getPlayers().stream()
+                    .map(PlayerDocument::toDomain)
+                    .toList();
             game.setPlayers(playersList);
 
             // Deck
