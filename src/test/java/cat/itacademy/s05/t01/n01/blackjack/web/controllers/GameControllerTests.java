@@ -100,7 +100,9 @@ class GameControllerTests {
         String json = """
                 {
                     "name": "Alice",
-                    "initialMoney": 100
+                    "initialMoney": {
+                                       "amount": 100
+                                         }
                 }
                 """;
 

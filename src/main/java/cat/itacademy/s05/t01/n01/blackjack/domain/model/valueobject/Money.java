@@ -2,8 +2,10 @@ package cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject;
 
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -11,6 +13,7 @@ import java.util.Objects;
 
 public class Money {
     @NotNull
+    @PositiveOrZero
     private final BigDecimal amount;
 
     @JsonCreator
@@ -35,7 +38,7 @@ public class Money {
         if (result.signum() < 0) throw new IllegalArgumentException("Insufficient funds");
         return new Money(result);
     }
-
+    @JsonIgnore
     public boolean isZero() {
         return amount.compareTo(BigDecimal.ZERO) == 0;
     }

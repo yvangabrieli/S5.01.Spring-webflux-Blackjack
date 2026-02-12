@@ -265,5 +265,10 @@ public class Game {
     public void setLastMovePlayerId(UUID lastMovePlayerId) {
         this.lastMovePlayerId = lastMovePlayerId;
     }
+
+    public void setPlayers(List<Player> players) {
+        this.players.clear();
+        this.players.addAll(players);
+    }
 }
 

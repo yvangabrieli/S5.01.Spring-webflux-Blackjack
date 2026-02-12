@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -30,6 +32,7 @@ public class RakingControllerTests {
     private WebTestClient webTestClient;
 
     @MockBean
+    @Qualifier("rankingApplicationService")
     private GetRankingUseCase getRankingUseCase;
 
     @Test

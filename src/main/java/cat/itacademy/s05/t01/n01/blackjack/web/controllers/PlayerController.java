@@ -10,6 +10,7 @@ import cat.itacademy.s05.t01.n01.blackjack.web.mapper.PlayerResponseMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -17,6 +18,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping ("/players")
+@Validated
 @RequiredArgsConstructor
 
 public class PlayerController {

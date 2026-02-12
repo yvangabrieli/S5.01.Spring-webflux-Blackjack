@@ -41,4 +41,5 @@ RUN chmod +x wait-for-it.sh
 EXPOSE 8080
 
 # Run the API only after MySQL is ready
-ENTRYPOINT ["./wait-for-it.sh", "mysql", "--", "java", "-jar", "app.jar"]
+ENTRYPOINT ["./wait-for-it.sh", "mysql", "3306", "java", "-jar", "app.jar"]
+
