@@ -39,7 +39,7 @@ public class GameApplicationService implements
                 .switchIfEmpty(Mono.error(new GameNotFoundException(gameId)))
                 .map(game -> {
                     Player player = new Player(UUID.randomUUID(), playerName, initialMoney);
-                    game.addPlayer(player.getId());
+                    game.addPlayer(player.getId(), playerName, initialMoney);
                     return game;
                 })
                 .flatMap(gameRepository::save);

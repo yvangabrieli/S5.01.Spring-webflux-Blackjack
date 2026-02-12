@@ -59,16 +59,14 @@ public class Game {
     // Aggregate Methods
     // ------------------------
 
-    public void addPlayer(UUID playerId) {
+    public void addPlayer(UUID playerId, String name, Money initialMoney) {
         if (status != GameStatus.NOT_STARTED) {
             throw new InvalidMoveException("Cannot add player once game started");
         }
         if (players.size() >= MAX_PLAYERS) {
             throw new InvalidMoveException("Max players reached");
         }
-        String defaultName = "Player " + (players.size() + 1); // e.g., Player 1, Player 2
-        Money defaultMoney = new Money(100);
-        Player player = new Player(playerId, defaultName, defaultMoney);
+        Player player = new Player(playerId, name, initialMoney);
         players.add(player);
         updatedAt = Instant.now();
     }
