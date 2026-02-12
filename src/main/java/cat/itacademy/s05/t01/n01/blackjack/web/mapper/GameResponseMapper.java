@@ -4,6 +4,8 @@ import cat.itacademy.s05.t01.n01.blackjack.domain.model.aggregates.Game;
 import cat.itacademy.s05.t01.n01.blackjack.web.dto.response.GameResponse;
 import cat.itacademy.s05.t01.n01.blackjack.web.dto.response.LastMoveResponse;
 
+import java.util.stream.Collectors;
+
 public class GameResponseMapper {
     private GameResponseMapper(){
     }
@@ -16,10 +18,15 @@ public class GameResponseMapper {
                     game.getLastMove().toString(),
                     game.getLastCardDrawn().toString());
         }
+        var players = game.getPlayers().stream()
+                .map(PlayerResponseMapper::from)
+                .collect(Collectors.toList());
+
         return new GameResponse(
                     game.getId(),
                     game.getStatus(),
                     game.getCurrentPlayerIndex(),
+                    players,
                     lastMove
         );
     }
