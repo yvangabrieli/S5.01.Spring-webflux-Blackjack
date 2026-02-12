@@ -52,7 +52,9 @@ public class Player {
     public void clearHand() {
         hand.clear();
     }
-
+    public void setMoney(Money money) {
+        this.money = money;
+    }
     public void addMoney (Money amount){
         this.money = this.money.add(amount);
     }

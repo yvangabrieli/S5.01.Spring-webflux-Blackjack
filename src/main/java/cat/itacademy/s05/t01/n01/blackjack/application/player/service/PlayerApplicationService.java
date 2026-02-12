@@ -30,15 +30,17 @@ public class PlayerApplicationService implements DeletePlayerUseCase, GetPlayerU
         }
     @Override
     public Player updatePlayer(UUID playerId, String newName, Money newMoney) {
-        Player player = getPlayer(playerId);
+        Player player = repositoryPort.findById(playerId)
+                .orElseGet(() -> new Player(playerId, newName != null ? newName : "Unknown", newMoney != null ? newMoney : new Money(0)));
 
         if (newName != null && !newName.isBlank()) {
             player.updateName(newName);
         }
 
         if (newMoney != null) {
-            repositoryPort.save(player); // money changes are handled via Game normally, skip here if domain forbids direct update
+            player.setMoney(newMoney);
         }
+
         repositoryPort.save(player);
         return player;
     }
