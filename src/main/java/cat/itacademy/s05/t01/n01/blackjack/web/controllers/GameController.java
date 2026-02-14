@@ -23,6 +23,7 @@ public class GameController {
     private final PlayGameUseCase playGameUseCase;
     private final DeleteGameUseCase deleteGameUseCase;
     private final AddPlayerToGameUseCase addPlayerToGameUseCase;
+    private final StartGameUseCase startGameUseCase;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -45,6 +46,12 @@ public class GameController {
     ) {
         return addPlayerToGameUseCase
                 .addPlayer(gameId, request.getName(), request.getInitialMoney())
+                .map(GameResponseMapper::from);
+    }
+
+    @PostMapping("/{gameId}/start")
+    public Mono<GameResponse> startGame(@PathVariable UUID gameId) {
+        return startGameUseCase.startGame(gameId)
                 .map(GameResponseMapper::from);
     }
 
