@@ -9,7 +9,8 @@ public class PlayerEntityMapper {
     return new PlayerEntity(
             player.getId(),
             player.getName(),
-            player.getMoney().getAmount()
+            player.getMoney().getAmount(),
+            0
     );
 }
 
