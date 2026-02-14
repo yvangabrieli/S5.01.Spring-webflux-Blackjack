@@ -21,9 +21,12 @@ public class PlayerEntity {
     @Column(nullable = false)
     private BigDecimal balance;
 
+    @Column(nullable = false)
+    private int wins = 0;
+
     protected PlayerEntity(){}
 
-    public PlayerEntity (UUID id, String name, BigDecimal balance){
+    public PlayerEntity (UUID id, String name, BigDecimal balance, int wins){
         this.id = id;
         this.name = name;
         this.balance = balance;
@@ -31,4 +34,5 @@ public class PlayerEntity {
     public UUID getId() {return id;}
     public String getName() {return name;}
     public BigDecimal getBalance() {return balance;}
+    public int getWins() { return wins; }
 }

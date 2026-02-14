@@ -42,12 +42,14 @@ public class RakingControllerTests {
                 new RankingEntry(
                         UUID.randomUUID(),
                         "Alice",
-                        BigDecimal.valueOf(1000)
+                        BigDecimal.valueOf(1000),
+                        0
                 ),
                 new RankingEntry(
                         UUID.randomUUID(),
                         "Bob",
-                        BigDecimal.valueOf(500)
+                        BigDecimal.valueOf(500),
+                        8
                 )
         );
 

@@ -28,7 +28,8 @@ public class LoadPlayerFromGamesAdapter implements LoadRankingPort {
                         .map(player -> new RankingEntry(
                                 player.getId(),
                                 player.getName(),
-                                player.getMoney().getAmount()
+                                player.getMoney().getAmount(),
+                                0
                         ))
                         .toList()
         ));

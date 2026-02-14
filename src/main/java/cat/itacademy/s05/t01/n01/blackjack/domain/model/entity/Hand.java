@@ -2,13 +2,21 @@ package cat.itacademy.s05.t01.n01.blackjack.domain.model.entity;
 
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject.Card;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject.Score;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Entity
+@Table(name = "hands")
 public class Hand {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long Id;
+
+    @Transient
     private final List<Card> cards;
 
     public Hand() {

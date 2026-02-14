@@ -1,3 +1,4 @@
+
 package cat.itacademy.s05.t01.n01.blackjack.domain.service;
 
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.aggregates.Player;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,17 +24,18 @@ public class BlackjackDomainServiceTest {
     void setup() {
         service = new BlackjackDomainService();
         dealer = new Dealer();
-        player1 = new Player(null, "Alice",new Money(600));
-        player2 = new Player(null, "Bob", new Money(500));
+        // Added UUID for players
+        player1 = new Player(UUID.randomUUID(), "Alice", new Money(600));
+        player2 = new Player(UUID.randomUUID(), "Bob", new Money(500));
     }
 
     @Test
     void testDealerShouldHit() {
-        dealer.addCard(new Card (Card.Suit.HEARTS, Card.Rank.TEN)); // 10
+        dealer.addCard(new Card(Card.Suit.HEARTS, Card.Rank.TEN)); // 10
         dealer.addCard(new Card(Card.Suit.CLUBS, Card.Rank.SIX)); // 6 -> total 16
         assertTrue(service.dealerShouldHit(dealer));
 
-        dealer.addCard(new Card(Card.Suit.SPADES ,Card.Rank.TWO)); // total 18
+        dealer.addCard(new Card(Card.Suit.SPADES, Card.Rank.TWO)); // total 18
         assertFalse(service.dealerShouldHit(dealer));
     }
 
@@ -77,5 +80,18 @@ public class BlackjackDomainServiceTest {
         Optional<Player> winner = service.determineWinner(List.of(player1), dealer);
         assertTrue(winner.isEmpty());
     }
-}
 
+    @Test
+    void testDetermineWinnerWhenDealerBusts() {
+        dealer.addCard(new Card(Card.Suit.HEARTS, Card.Rank.KING));
+        dealer.addCard(new Card(Card.Suit.CLUBS, Card.Rank.QUEEN));
+        dealer.addCard(new Card(Card.Suit.SPADES, Card.Rank.FIVE)); // 25 -> busted
+
+        player1.addCard(new Card(Card.Suit.DIAMONDS, Card.Rank.TEN));
+        player1.addCard(new Card(Card.Suit.SPADES, Card.Rank.SEVEN)); // 17
+
+        Optional<Player> winner = service.determineWinner(List.of(player1), dealer);
+        assertTrue(winner.isPresent());
+        assertEquals(player1, winner.get());
+    }
+}

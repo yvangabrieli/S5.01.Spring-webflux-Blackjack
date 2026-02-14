@@ -2,6 +2,7 @@ package cat.itacademy.s05.t01.n01.blackjack.application.game.service;
 
 import cat.itacademy.s05.t01.n01.blackjack.application.game.port.in.*;
 import cat.itacademy.s05.t01.n01.blackjack.application.game.port.out.GameRepositoryPort;
+import cat.itacademy.s05.t01.n01.blackjack.application.player.port.out.PlayerRepositoryPort;
 import cat.itacademy.s05.t01.n01.blackjack.domain.exception.GameNotFoundException;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.aggregates.Game;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.aggregates.Player;
@@ -15,15 +16,18 @@ import java.util.UUID;
 @Service
 public class GameApplicationService implements
         CreateGameUseCase,
+        StartGameUseCase,
         AddPlayerToGameUseCase,
         DeleteGameUseCase,
         GetGameUseCase,
         PlayGameUseCase {
 
     private final GameRepositoryPort gameRepository;
+    private final PlayerRepositoryPort playerRepository;
 
-    public GameApplicationService(GameRepositoryPort gameRepository) {
+    public GameApplicationService(GameRepositoryPort gameRepository, PlayerRepositoryPort playerRepository) {
         this.gameRepository = gameRepository;
+        this.playerRepository = playerRepository;
     }
 
     @Override
@@ -39,7 +43,17 @@ public class GameApplicationService implements
                 .switchIfEmpty(Mono.error(new GameNotFoundException(gameId)))
                 .map(game -> {
                     Player player = new Player(UUID.randomUUID(), playerName, initialMoney);
-                    game.addPlayer(player.getId());
+                    playerRepository.save(player);
+                    game.addPlayer(player.getId(), playerName, initialMoney);
+                    return game;
+                })
+                .flatMap(gameRepository::save);
+    }
+    @Override
+    public Mono<Game> startGame(UUID gameId) {
+        return getGame(gameId)
+                .map(game -> {
+                    game.start();
                     return game;
                 })
                 .flatMap(gameRepository::save);
