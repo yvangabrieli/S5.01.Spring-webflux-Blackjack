@@ -1,6 +1,7 @@
 package cat.itacademy.s05.t01.n01.blackjack.infrastructure.persistence.mongodb.game;
 
 import cat.itacademy.s05.t01.n01.blackjack.application.game.port.out.GameRepositoryPort;
+import cat.itacademy.s05.t01.n01.blackjack.application.player.port.out.PlayerRepositoryPort;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.aggregates.Game;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.aggregates.Player;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.enums.GameStatus;
@@ -9,22 +10,26 @@ import cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject.Deck;
 import cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject.Money;
 
 import cat.itacademy.s05.t01.n01.blackjack.infrastructure.persistence.mongodb.mapper.CardDocument;
-import cat.itacademy.s05.t01.n01.blackjack.infrastructure.persistence.mongodb.mapper.PlayerDocument;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Repository
 @Profile("mongo")
 @RequiredArgsConstructor
 public class GameRepositoryMongoAdapter implements GameRepositoryPort {
+
     public final SpringDataGameMongoRepository repository;
+    private final PlayerRepositoryPort playerRepositoryPort;
+
     @Override
     public Mono<Game> save(Game game){
         GameDocument document = toDocument(game);
@@ -49,11 +54,21 @@ public class GameRepositoryMongoAdapter implements GameRepositoryPort {
         doc.setUpdatedAt(game.getUpdatedAt().toEpochMilli());
 
 // Store Players ids
-        doc.setPlayers(
+        doc.setPlayerIds(
                 game.getPlayers().stream()
-                        .map(PlayerDocument::fromDomain)
+                        .map(Player::getId)
                         .toList()
         );
+        //  Store player hands
+        Map<String, List<CardDocument>> playerHands = game.getPlayers().stream()
+                .collect(Collectors.toMap(
+                        player -> player.getId().toString(),
+                        player -> player.getHand().getCards().stream()
+                                .map(CardDocument::fromDomain)
+                                .toList()
+                ));
+        doc.setPlayerHands(playerHands);
+
 // Deck
         doc.setDeck(game.getDeck().getCards()
                         .stream()
@@ -77,9 +92,26 @@ public class GameRepositoryMongoAdapter implements GameRepositoryPort {
             game.setPot(new Money(doc.getPotAmount()));
 
             //Players
-            List<Player> playersList = doc.getPlayers().stream()
-                    .map(PlayerDocument::toDomain)
-                    .toList();
+            List<Player> playersList = doc.getPlayerIds().stream()
+                    .map(playerId -> playerRepositoryPort.findById(playerId)
+                            .orElse(new Player(playerId, "Unknow Player", new Money(0))))
+                                    .toList();
+            game.setPlayers(playersList);
+
+            // Restore hands from MongoDB
+            if (doc.getPlayerHands() != null) {
+                playersList.forEach(player -> {
+                    List<CardDocument> handDocs = doc.getPlayerHands().get(player.getId().toString());
+                    if (handDocs != null) {
+                        List<Card> cards = handDocs.stream()
+                                .map(CardDocument::toDomain)
+                                .toList();
+                        player.getHand().clear();
+                        cards.forEach(player::addCard);
+                    }
+                });
+            }
+
             game.setPlayers(playersList);
 
             // Deck
