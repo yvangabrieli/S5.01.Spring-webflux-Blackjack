@@ -29,7 +29,8 @@ public class RankingRepositoryJpaAdapter implements LoadRankingPort {
                 .map(player -> new RankingEntry(
                         player.getId(),
                         player.getName(),
-                        player.getBalance()
+                        player.getBalance(),
+                        0
                 ))
                 .sort(Comparator.comparing(RankingEntry::getBalance).reversed()) // descending
                 .collectList();
