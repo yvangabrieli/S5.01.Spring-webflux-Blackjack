@@ -20,7 +20,7 @@ public class Card {
 
     public enum Rank {
         TWO(2, "2"), THREE(3, "3"), FOUR(4, "4"), FIVE(5,"5"), SIX(6,"6"), SEVEN(7, "7"), EIGHT(8,"8"),
-        NINE(9, "9"), TEN(10,"10"), JACK(10,"10"), QUEEN(10,"10"), KING(10,"10"), ACE(11,"11"); // ACE can be 1 or 11, handled in Score
+        NINE(9, "9"), TEN(10,"10"), JACK(10,"JACK"), QUEEN(10,"QUEEN"), KING(10,"KING"), ACE(11,"ACE"); // ACE can be 1 or 11, handled in Score
 
         private final int value;
         private String symbol;
@@ -61,5 +61,6 @@ public class Card {
     public String toString() {
         return rank.getSymbol() + " of " + suit.getSymbol();
     }
+
 }
 
