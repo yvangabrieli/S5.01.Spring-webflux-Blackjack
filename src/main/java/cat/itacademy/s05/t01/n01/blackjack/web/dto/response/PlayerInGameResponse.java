@@ -3,20 +3,16 @@ package cat.itacademy.s05.t01.n01.blackjack.web.dto.response;
 import java.util.List;
 import java.util.UUID;
 
-public class PlayerResponse {
+public class PlayerInGameResponse {
     private UUID id;
     private String name;
     private double balance;
-    private List<String> hand;  // ← ADD
-    private Integer score;  // ← ADD (nullable)
-    private Boolean busted;  // ← ADD (nullable)
+    private List<String> hand;  // ← Card representations
+    private int score;  // ← Hand score
+    private boolean busted;
 
-    public PlayerResponse(UUID id, String name, double balance) {
-        this(id, name, balance, null, null, null);
-    }
-
-    public PlayerResponse(UUID id, String name, double balance,
-                          List<String> hand, Integer score, Boolean busted) {
+    public PlayerInGameResponse(UUID id, String name, double balance,
+                                List<String> hand, int score, boolean busted) {
         this.id = id;
         this.name = name;
         this.balance = balance;
@@ -25,10 +21,11 @@ public class PlayerResponse {
         this.busted = busted;
     }
 
+    // Getters
     public UUID getId() { return id; }
     public String getName() { return name; }
     public double getBalance() { return balance; }
     public List<String> getHand() { return hand; }
-    public Integer getScore() { return score; }
-    public Boolean getBusted() { return busted; }
+    public int getScore() { return score; }
+    public boolean isBusted() { return busted; }
 }
