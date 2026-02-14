@@ -4,13 +4,14 @@ package cat.itacademy.s05.t01.n01.blackjack.domain.model.valueobject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
-
+@Embeddable
 public class Money {
     @NotNull
     @PositiveOrZero
@@ -18,11 +19,21 @@ public class Money {
 
     @JsonCreator
     public Money(@JsonProperty ("amount") double amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Money amount cannot be negative");
+        }
         this.amount = BigDecimal.valueOf(amount).setScale(2, BigDecimal.ROUND_HALF_EVEN);
     }
 
     public Money(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Money amount cannot be negative");
+        }
         this.amount = amount.setScale(2, BigDecimal.ROUND_HALF_EVEN);
+    }
+
+    protected Money(){
+        this.amount = BigDecimal.ZERO;
     }
 
     public BigDecimal getAmount() {
@@ -41,6 +52,11 @@ public class Money {
     @JsonIgnore
     public boolean isZero() {
         return amount.compareTo(BigDecimal.ZERO) == 0;
+    }
+
+    @JsonIgnore
+    public boolean isPositive(){
+        return amount.compareTo(BigDecimal.ZERO) > 0;
     }
 
     @Override
