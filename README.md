@@ -39,25 +39,25 @@ CategoryTechnologyLanguageJava 21FrameworkSpring Boot 3.4.1 (WebFlux)DatabasesMo
 
 🏗 Architecture
 This project follows Hexagonal Architecture (Ports & Adapters):
-┌─────────────────────────────────────────────────────┐
-│                   WEB LAYER                         │
-│  Controllers │ DTOs │ Exception Handlers │ Mappers  │
-└─────────────────────┬───────────────────────────────┘
-                      │
-┌─────────────────────▼───────────────────────────────┐
-│              APPLICATION LAYER                      │
-│     Use Cases │ Ports (Interfaces) │ Services       │
-└─────────────────────┬───────────────────────────────┘
-                      │
-┌─────────────────────▼───────────────────────────────┐
-│                DOMAIN LAYER                         │
-│   Aggregates │ Entities │ Value Objects │ Services  │
-└─────────────────────┬───────────────────────────────┘
-                      │
-┌─────────────────────▼───────────────────────────────┐
-│           INFRASTRUCTURE LAYER                      │
-│   MongoDB Adapters │ MySQL Adapters │ Mappers       │
-└─────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐ 
+│                   WEB LAYER                         │ 
+│  Controllers │ DTOs │ Exception Handlers │ Mappers  │ 
+└─────────────────────┬───────────────────────────────┘ 
+                      │ 
+┌─────────────────────▼───────────────────────────────┐ 
+│              APPLICATION LAYER                      │ 
+│     Use Cases │ Ports (Interfaces) │ Services       │ 
+└─────────────────────┬───────────────────────────────┘ 
+                      │ 
+┌─────────────────────▼───────────────────────────────┐ 
+│                DOMAIN LAYER                         │ 
+│   Aggregates │ Entities │ Value Objects │ Services  │ 
+└─────────────────────┬───────────────────────────────┘ 
+                      │ 
+┌─────────────────────▼───────────────────────────────┐ 
+│           INFRASTRUCTURE LAYER                      │ 
+│   MongoDB Adapters │ MySQL Adapters │ Mappers       │ 
+└─────────────────────────────────────────────────────┘ 
 Key Design Patterns
 
 Repository Pattern: Abstraction over data access
@@ -133,23 +133,23 @@ bash./mvnw test
 
 ### Test Coverage
 
-| Layer | Coverage | Test Files |
-|-------|----------|------------|
-| **Domain** | ✅ High | `BlackjackDomainServiceTest` |
-| **Controllers** | ✅ Complete | `GameControllerTests`, `PlayerControllerTests`, `RankingControllerTests`, `HealthControllerTests` |
-| **Integration** | ✅ Basic | `BlackjackApplicationTests` |
+| Layer | Coverage | Test Files | 
+|-------|----------|------------| 
+| **Domain** | ✅ High | `BlackjackDomainServiceTest` | 
+| **Controllers** | ✅ Complete | `GameControllerTests`, `PlayerControllerTests`, `RankingControllerTests`, `HealthControllerTests` | 
+| **Integration** | ✅ Basic | `BlackjackApplicationTests` | 
 
 ### Test Structure
 ```
-src/test/java/
-├── domain/service/
-│   └── BlackjackDomainServiceTest.java
-├── web/controllers/
-│   ├── GameControllerTests.java
-│   ├── PlayerControllerTests.java
-│   ├── RankingControllerTests.java
-│   └── HealthControllerTests.java
-└── BlackjackApplicationTests.java
+src/test/java/ 
+├── domain/service/ 
+│   └── BlackjackDomainServiceTest.java 
+├── web/controllers/ 
+│   ├── GameControllerTests.java 
+│   ├── PlayerControllerTests.java 
+│   ├── RankingControllerTests.java 
+│   └── HealthControllerTests.java 
+└── BlackjackApplicationTests.java 
 
 🐳 Docker Deployment
 Docker Compose Services
@@ -188,33 +188,33 @@ SPRING_PROFILES_ACTIVE=mongo,mysql
 
 ## 📁 Project Structure
 ```
-blackjack/
-├── src/main/java/cat/itacademy/.../blackjack/
-│   ├── application/          # Use Cases & Ports
-│   │   ├── game/
-│   │   ├── player/
-│   │   └── ranking/
-│   ├── domain/               # Business Logic
-│   │   ├── model/
-│   │   │   ├── aggregates/   (Game, Player)
-│   │   │   ├── entity/       (Dealer, Hand)
-│   │   │   ├── valueobject/  (Card, Deck, Money, Score)
-│   │   │   └── enums/        (GameStatus, MoveType)
-│   │   ├── service/          (BlackjackDomainService)
-│   │   └── exception/
-│   ├── infrastructure/       # Adapters
-│   │   └── persistence/
-│   │       ├── mongodb/      (GameRepositoryMongoAdapter)
-│   │       └── mysql/        (PlayerRepositoryJpaAdapter)
+blackjack/ 
+├── src/main/java/cat/itacademy/.../blackjack/ 
+│   ├── application/          # Use Cases & Ports 
+│   │   ├── game/ 
+│   │   ├── player/ 
+│   │   └── ranking/ 
+│   ├── domain/               # Business Logic 
+│   │   ├── model/ 
+│   │   │   ├── aggregates/   (Game, Player) 
+│   │   │   ├── entity/       (Dealer, Hand) 
+│   │   │   ├── valueobject/  (Card, Deck, Money, Score) 
+│   │   │   └── enums/        (GameStatus, MoveType) 
+│   │   ├── service/          (BlackjackDomainService) 
+│   │   └── exception/ 
+│   ├── infrastructure/       # Adapters 
+│   │   └── persistence/ 
+│   │       ├── mongodb/      (GameRepositoryMongoAdapter) 
+│   │       └── mysql/        (PlayerRepositoryJpaAdapter) 
 │   ├── web/                  # API Layer
-│   │   ├── controllers/
-│   │   ├── dto/
-│   │   └── exception/        (GlobalExceptionHandler)
-│   └── config/               (MongoDB, MySQL, OpenAPI)
-├── src/test/                 # Tests
-├── docker-compose.yml
-├── Dockerfile
-└── pom.xml
+│   │   ├── controllers/ 
+│   │   ├── dto/ 
+│   │   └── exception/        (GlobalExceptionHandler) 
+│   └── config/               (MongoDB, MySQL, OpenAPI) 
+├── src/test/                 # Tests 
+├── docker-compose.yml 
+├── Dockerfile 
+└── pom.xml 
 
 📚 Key Classes
 Domain Aggregates
