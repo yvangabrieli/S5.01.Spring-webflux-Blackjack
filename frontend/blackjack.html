@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blackjack — Table</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --felt-dark:#081f17;
+    --felt:#0f3d2e;
+    --felt-light:#175a41;
+    --rail:#5b3d24;
+    --rail-light:#7a5636;
+    --gold:#c9a227;
+    --gold-soft:#e6c96b;
+    --cream:#f4efe0;
+    --ink:#18140f;
+    --ink-soft:#5b5346;
+    --red:#9c3030;
+    --danger:#c24949;
+    --ok:#4c8c63;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at 50% -10%, #123626 0%, var(--felt-dark) 55%, #030b07 100%);
+    color:var(--cream);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--gold-soft); color:var(--ink); }
+
+  a, button, input{ font-family:inherit; }
+
+  #app{
+    max-width:1180px;
+    margin:0 auto;
+    padding:28px 22px 80px;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
+    border-bottom:1px solid rgba(244,239,224,0.14);
+    padding-bottom:18px;
+    margin-bottom:28px;
+  }
+  .wordmark{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+  }
+  .wordmark h1{
+    font-family:'Fraunces', serif;
+    font-optical-sizing:auto;
+    font-weight:700;
+    font-size:clamp(28px, 4vw, 40px);
+    margin:0;
+    letter-spacing:-0.01em;
+    color:var(--cream);
+  }
+  .wordmark span.suit{ color:var(--gold-soft); }
+  .wordmark small{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    color:#9c9584;
+    letter-spacing:0.02em;
+  }
+
+  .conn{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:13px;
+  }
+  .conn input{
+    background:rgba(0,0,0,0.28);
+    border:1px solid rgba(244,239,224,0.22);
+    color:var(--cream);
+    border-radius:7px;
+    padding:8px 10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    width:230px;
+  }
+  .conn input:focus{ outline:2px solid var(--gold-soft); outline-offset:1px; }
+  .dot{
+    width:9px; height:9px; border-radius:50%;
+    background:#6b6255;
+    flex:none;
+    box-shadow:0 0 0 3px rgba(255,255,255,0.03);
+  }
+  .dot.on{ background:var(--ok); box-shadow:0 0 8px rgba(76,140,99,0.8); }
+  .dot.off{ background:var(--danger); box-shadow:0 0 8px rgba(194,73,73,0.7); }
+  .conn button{
+    background:transparent;
+    border:1px solid rgba(244,239,224,0.3);
+    color:var(--cream);
+    padding:8px 12px;
+    border-radius:7px;
+    cursor:pointer;
+    font-size:12.5px;
+  }
+  .conn button:hover{ border-color:var(--gold-soft); color:var(--gold-soft); }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    appearance:none;
+    border:none;
+    border-radius:8px;
+    padding:12px 20px;
+    font-size:14.5px;
+    font-weight:600;
+    cursor:pointer;
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .btn:active{ transform:translateY(1px); }
+  .btn:disabled{ cursor:not-allowed; opacity:0.45; }
+  .btn-gold{
+    background:linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color:#221a06;
+    box-shadow:0 1px 0 rgba(255,255,255,0.4) inset, 0 6px 16px rgba(201,162,39,0.25);
+  }
+  .btn-gold:hover:not(:disabled){ box-shadow:0 1px 0 rgba(255,255,255,0.55) inset, 0 8px 20px rgba(201,162,39,0.38); }
+  .btn-outline{
+    background:transparent;
+    border:1px solid rgba(244,239,224,0.32);
+    color:var(--cream);
+  }
+  .btn-outline:hover:not(:disabled){ border-color:var(--cream); }
+  .btn-danger{
+    background:transparent;
+    border:1px solid rgba(194,73,73,0.55);
+    color:#e8a5a5;
+  }
+  .btn-danger:hover:not(:disabled){ border-color:var(--danger); color:#ffd3d3; }
+  .btn-block{ width:100%; }
+
+  /* ---------- Layout: two-column ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:1fr 300px;
+    gap:26px;
+    align-items:start;
+  }
+  @media (max-width: 880px){
+    .layout{ grid-template-columns:1fr; }
+  }
+
+  /* ---------- Setup / lobby ---------- */
+  .panel{
+    background:rgba(244,239,224,0.04);
+    border:1px solid rgba(244,239,224,0.1);
+    border-radius:14px;
+    padding:24px;
+  }
+  .panel h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:21px;
+    margin:0 0 4px;
+  }
+  .panel p.hint{
+    margin:0 0 18px;
+    font-size:13.5px;
+    color:#b9b2a2;
+    line-height:1.5;
+  }
+  .field{ margin-bottom:14px; }
+  .field label{
+    display:block;
+    font-size:12px;
+    text-transform:none;
+    color:#b9b2a2;
+    margin-bottom:6px;
+  }
+  .field input{
+    width:100%;
+    background:rgba(0,0,0,0.25);
+    border:1px solid rgba(244,239,224,0.18);
+    color:var(--cream);
+    border-radius:8px;
+    padding:11px 12px;
+    font-size:14.5px;
+  }
+  .field input:focus{ outline:2px solid var(--gold-soft); outline-offset:1px; }
+  .field-row{ display:flex; gap:10px; }
+  .field-row .field{ flex:1; }
+
+  .game-id-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:rgba(0,0,0,0.28);
+    border:1px solid rgba(244,239,224,0.16);
+    border-radius:999px;
+    padding:6px 12px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:#d8d2c2;
+    margin-bottom:18px;
+  }
+
+  .seated-list{
+    list-style:none;
+    margin:0 0 18px;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .seated-list li{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:rgba(0,0,0,0.22);
+    border:1px solid rgba(244,239,224,0.1);
+    border-radius:9px;
+    padding:9px 12px;
+    font-size:13.5px;
+  }
+  .seated-list .stake{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--gold-soft);
+    font-size:13px;
+  }
+  .empty-note{
+    font-size:13px;
+    color:#8f8875;
+    padding:10px 0 4px;
+  }
+
+  /* ---------- Table ---------- */
+  .table-wrap{
+    position:relative;
+    padding:26px;
+    border-radius:200px / 90px;
+    background:
+      radial-gradient(ellipse at 50% 20%, var(--felt-light) 0%, var(--felt) 55%, var(--felt-dark) 100%);
+    border:14px solid var(--rail);
+    box-shadow:
+      inset 0 0 0 2px rgba(0,0,0,0.35),
+      inset 0 30px 60px rgba(0,0,0,0.35),
+      0 18px 40px rgba(0,0,0,0.45);
+    min-height:520px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .table-wrap::before{
+    content:"";
+    position:absolute;
+    inset:14px;
+    border-radius:170px / 76px;
+    border:1px solid rgba(230,201,107,0.18);
+    pointer-events:none;
+  }
+  @media (max-width: 640px){
+    .table-wrap{ border-radius:34px; padding:18px; }
+    .table-wrap::before{ border-radius:24px; }
+  }
+
+  .status-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    font-size:12.5px;
+    color:#cfead9;
+  }
+  .status-tag{
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:0.02em;
+    background:rgba(0,0,0,0.25);
+    border:1px solid rgba(244,239,224,0.14);
+    padding:4px 10px;
+    border-radius:999px;
+  }
+
+  .dealer-zone{
+    text-align:center;
+    padding-top:6px;
+  }
+  .zone-label{
+    font-size:11.5px;
+    color:#a9c9b6;
+    margin-bottom:10px;
+  }
+  .hand{
+    display:flex;
+    justify-content:center;
+    gap:-10px;
+    flex-wrap:wrap;
+    min-height:96px;
+  }
+  .card{
+    width:58px;
+    height:84px;
+    background:var(--cream);
+    border-radius:7px;
+    box-shadow:0 3px 8px rgba(0,0,0,0.4);
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:6px 7px;
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--ink);
+    position:relative;
+    margin-left:-14px;
+    transition:transform .15s ease;
+  }
+  .card:first-child{ margin-left:0; }
+  .card:hover{ transform:translateY(-6px); z-index:2; }
+  .card.red{ color:var(--red); }
+  .card .rank{ font-size:14px; font-weight:600; line-height:1; }
+  .card .suit-big{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+    opacity:0.9;
+  }
+  .card .rank.bottom{ align-self:flex-end; transform:rotate(180deg); }
+
+  .score-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-top:10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    background:rgba(0,0,0,0.25);
+    border:1px solid rgba(244,239,224,0.16);
+    padding:4px 11px;
+    border-radius:999px;
+  }
+  .score-badge.bust{ border-color:rgba(194,73,73,0.6); color:#ffb3b3; }
+  .score-badge.stand{ border-color:rgba(230,201,107,0.5); color:var(--gold-soft); }
+
+  .players-zone{
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    justify-content:center;
+    padding-bottom:6px;
+    margin-top:auto;
+  }
+  .seat{
+    background:rgba(0,0,0,0.22);
+    border:1px solid rgba(244,239,224,0.12);
+    border-radius:12px;
+    padding:14px;
+    width:190px;
+    text-align:center;
+    position:relative;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .seat.turn{
+    border-color:var(--gold-soft);
+    box-shadow:0 0 0 3px rgba(230,201,107,0.16), 0 6px 18px rgba(0,0,0,0.35);
+  }
+  .seat.winner{
+    border-color:var(--ok);
+    box-shadow:0 0 0 3px rgba(76,140,99,0.22);
+  }
+  .seat .turn-flag{
+    position:absolute;
+    top:-10px;
+    left:50%;
+    transform:translateX(-50%);
+    background:var(--gold-soft);
+    color:#221a06;
+    font-size:10.5px;
+    font-weight:600;
+    padding:2px 9px;
+    border-radius:999px;
+  }
+  .seat .name{
+    font-weight:600;
+    font-size:14px;
+    margin-bottom:2px;
+  }
+  .seat .balance{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--gold-soft);
+    margin-bottom:10px;
+  }
+  .seat .hand{ min-height:76px; gap:0; }
+  .seat .card{ width:46px; height:66px; padding:5px 6px; }
+  .seat .card .rank{ font-size:11.5px; }
+  .seat .card .suit-big{ font-size:19px; }
+
+  .action-bar{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+    padding-top:4px;
+  }
+  .action-bar .whose-turn{
+    font-size:13px;
+    color:#cfead9;
+    margin-right:6px;
+  }
+
+  .last-move{
+    text-align:center;
+    font-size:12.5px;
+    color:#a9c9b6;
+    min-height:18px;
+  }
+  .last-move b{ color:var(--gold-soft); font-weight:600; }
+
+  .winner-banner{
+    text-align:center;
+    padding:16px;
+    background:rgba(76,140,99,0.14);
+    border:1px solid rgba(76,140,99,0.4);
+    border-radius:12px;
+  }
+  .winner-banner .title{
+    font-family:'Fraunces', serif;
+    font-size:22px;
+    font-weight:600;
+    color:var(--gold-soft);
+    margin-bottom:4px;
+  }
+  .winner-banner .sub{ font-size:13px; color:#cfead9; margin-bottom:14px; }
+  .winner-actions{ display:flex; justify-content:center; gap:10px; }
+
+  /* ---------- Sidebar: ranking + log ---------- */
+  .rank-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+  }
+  .rank-list li{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:rgba(0,0,0,0.2);
+    border:1px solid rgba(244,239,224,0.09);
+    border-radius:9px;
+    padding:8px 11px;
+    font-size:13px;
+  }
+  .rank-list .pos{
+    font-family:'IBM Plex Mono', monospace;
+    color:#9c9584;
+    width:18px;
+    flex:none;
+  }
+  .rank-list li:nth-child(1) .pos{ color:var(--gold-soft); }
+  .rank-list .rname{ flex:1; }
+  .rank-list .rbal{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--gold-soft);
+    font-size:12.5px;
+  }
+  .refresh-link{
+    display:inline-block;
+    margin-top:12px;
+    font-size:12px;
+    color:#a9c9b6;
+    cursor:pointer;
+    border-bottom:1px dotted #a9c9b6;
+  }
+  .refresh-link:hover{ color:var(--gold-soft); border-color:var(--gold-soft); }
+
+  .leave-row{ margin-top:18px; }
+
+  /* ---------- Toasts ---------- */
+  #toast-area{
+    position:fixed;
+    top:18px;
+    right:18px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    z-index:50;
+  }
+  .toast{
+    background:#241a1a;
+    border:1px solid rgba(194,73,73,0.5);
+    color:#ffd3d3;
+    padding:11px 16px;
+    border-radius:9px;
+    font-size:13px;
+    max-width:320px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.4);
+    animation:toast-in .18s ease;
+  }
+  @keyframes toast-in{ from{ opacity:0; transform:translateY(-6px); } to{ opacity:1; transform:none; } }
+
+  [hidden]{ display:none !important; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001s !important; transition-duration:0.001s !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="toast-area"></div>
+
+<div id="app">
+
+  <header>
+    <div class="wordmark">
+      <h1><span class="suit">♠</span> Blackjack</h1>
+      <small>reactive table · Spring WebFlux backend</small>
+    </div>
+    <div class="conn">
+      <span class="dot off" id="conn-dot"></span>
+      <input id="base-url" type="text" value="http://localhost:8080" spellcheck="false">
+      <button id="conn-btn" type="button">Connect</button>
+    </div>
+  </header>
+
+  <!-- ===================== SETUP VIEW ===================== -->
+  <main id="setup-view" class="layout">
+    <section class="panel">
+      <div id="setup-no-game">
+        <h2>Open a table</h2>
+        <p class="hint">Start a new game, then seat one to five players before dealing.</p>
+        <button class="btn btn-gold" id="create-game-btn" type="button">Open table</button>
+      </div>
+
+      <div id="setup-lobby" hidden>
+        <h2>Seat your players</h2>
+        <p class="hint">Add a name and a starting stake for each player. Deal once everyone's seated.</p>
+        <div class="game-id-chip">table <span id="lobby-game-id">—</span></div>
+
+        <ul class="seated-list" id="seated-list"></ul>
+        <div class="empty-note" id="seated-empty">No one's seated yet.</div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="player-name">Player name</label>
+            <input id="player-name" type="text" placeholder="e.g. Nora" maxlength="40">
+          </div>
+          <div class="field" style="max-width:130px">
+            <label for="player-stake">Starting stake</label>
+            <input id="player-stake" type="number" min="1" step="1" value="100">
+          </div>
+        </div>
+        <button class="btn btn-outline btn-block" id="add-player-btn" type="button" style="margin-bottom:14px;">Seat player</button>
+        <button class="btn btn-gold btn-block" id="deal-btn" type="button" disabled>Deal cards</button>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h2 style="font-size:17px;">How this works</h2>
+      <p class="hint" style="margin-bottom:0;">
+        This page is a thin client over the Blackjack REST API — every action here is one call:
+        open a table, seat players, deal, then each player hits or stands in turn until the dealer settles the hand.
+        Point the field above at wherever the API is running.
+      </p>
+    </aside>
+  </main>
+
+  <!-- ===================== TABLE VIEW ===================== -->
+  <main id="table-view" class="layout" hidden>
+    <section>
+      <div class="table-wrap">
+        <div class="status-row">
+          <span class="game-id-chip" style="margin:0;">table <span id="table-game-id">—</span></span>
+          <span class="status-tag" id="status-tag">—</span>
+        </div>
+
+        <div class="dealer-zone">
+          <div class="zone-label">Dealer</div>
+          <div class="hand" id="dealer-hand"></div>
+          <div class="score-badge" id="dealer-score">score —</div>
+        </div>
+
+        <div id="winner-banner-wrap"></div>
+
+        <div class="last-move" id="last-move"></div>
+
+        <div class="action-bar" id="action-bar"></div>
+
+        <div class="players-zone" id="players-zone"></div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h2 style="font-size:17px;">Ranking</h2>
+      <p class="hint" style="margin-bottom:10px;">Balances at this table.</p>
+      <ul class="rank-list" id="rank-list"></ul>
+      <div class="empty-note" id="rank-empty" hidden>No ranking yet — deal a hand first.</div>
+      <span class="refresh-link" id="refresh-rank">Refresh ranking</span>
+
+      <div class="leave-row">
+        <button class="btn btn-danger btn-block" id="leave-table-btn" type="button">Leave table</button>
+      </div>
+    </aside>
+  </main>
+
+</div>
+
+<script>
+(() => {
+  const state = {
+    baseUrl: 'http://localhost:8080',
+    gameId: null,
+    game: null,          // last GameResponse
+    seatedPlayers: [],   // [{id, name, initialMoney}] known from lobby, before start
+    connected: false,
+  };
+
+  // ---------- DOM refs ----------
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    connDot: $('conn-dot'),
+    baseUrlInput: $('base-url'),
+    connBtn: $('conn-btn'),
+    toastArea: $('toast-area'),
+
+    setupView: $('setup-view'),
+    setupNoGame: $('setup-no-game'),
+    setupLobby: $('setup-lobby'),
+    createGameBtn: $('create-game-btn'),
+    lobbyGameId: $('lobby-game-id'),
+    seatedList: $('seated-list'),
+    seatedEmpty: $('seated-empty'),
+    playerName: $('player-name'),
+    playerStake: $('player-stake'),
+    addPlayerBtn: $('add-player-btn'),
+    dealBtn: $('deal-btn'),
+
+    tableView: $('table-view'),
+    tableGameId: $('table-game-id'),
+    statusTag: $('status-tag'),
+    dealerHand: $('dealer-hand'),
+    dealerScore: $('dealer-score'),
+    winnerBannerWrap: $('winner-banner-wrap'),
+    lastMove: $('last-move'),
+    actionBar: $('action-bar'),
+    playersZone: $('players-zone'),
+
+    rankList: $('rank-list'),
+    rankEmpty: $('rank-empty'),
+    refreshRank: $('refresh-rank'),
+    leaveTableBtn: $('leave-table-btn'),
+  };
+
+  // ---------- helpers ----------
+  function toast(message){
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = message;
+    els.toastArea.appendChild(t);
+    setTimeout(() => t.remove(), 5200);
+  }
+
+  async function api(path, opts = {}){
+    const url = state.baseUrl.replace(/\/+$/,'') + path;
+    let res;
+    try{
+      res = await fetch(url, {
+        headers: { 'Content-Type': 'application/json' },
+        ...opts,
+      });
+    }catch(err){
+      throw new Error('Could not reach the API at ' + state.baseUrl + '. Check the address and that the server is running.');
+    }
+    if(!res.ok){
+      let msg = res.status + ' ' + res.statusText;
+      try{
+        const body = await res.json();
+        if(body && body.message) msg = body.message;
+      }catch(_e){}
+      throw new Error(msg);
+    }
+    if(res.status === 204) return null;
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  }
+
+  function setConnected(on){
+    state.connected = on;
+    els.connDot.className = 'dot ' + (on ? 'on' : 'off');
+  }
+
+  async function checkConnection(){
+    try{
+      await api('/health');
+      setConnected(true);
+    }catch(err){
+      setConnected(false);
+    }
+  }
+
+  // Parses backend card strings like "ACE of ♠" / "10 of ♥"
+  function parseCard(str){
+    const parts = str.split(' of ');
+    const rankRaw = parts[0] || '?';
+    const suit = parts[1] || '';
+    const shortRank = { JACK:'J', QUEEN:'Q', KING:'K', ACE:'A' }[rankRaw] || rankRaw;
+    const red = suit === '♥' || suit === '♦';
+    return { shortRank, suit, red };
+  }
+
+  function cardEl(str){
+    const { shortRank, suit, red } = parseCard(str);
+    const div = document.createElement('div');
+    div.className = 'card' + (red ? ' red' : '');
+    div.innerHTML = `
+      <span class="rank">${shortRank}<br>${suit}</span>
+      <span class="suit-big">${suit}</span>
+      <span class="rank bottom">${shortRank}<br>${suit}</span>
+    `;
+    return div;
+  }
+
+  function renderHand(container, hand){
+    container.innerHTML = '';
+    (hand || []).forEach(c => container.appendChild(cardEl(c)));
+    if(!hand || hand.length === 0){
+      const empty = document.createElement('div');
+      empty.style.cssText = 'font-size:12px;color:#8f8875;align-self:center;';
+      empty.textContent = 'no cards yet';
+      container.appendChild(empty);
+    }
+  }
+
+  // ---------- view switching ----------
+  function showSetup(){
+    els.setupView.hidden = false;
+    els.tableView.hidden = true;
+  }
+  function showTable(){
+    els.setupView.hidden = true;
+    els.tableView.hidden = false;
+  }
+
+  // ---------- lobby (pre-start) ----------
+  function renderLobby(){
+    els.setupNoGame.hidden = !!state.gameId;
+    els.setupLobby.hidden = !state.gameId;
+    if(!state.gameId) return;
+
+    els.lobbyGameId.textContent = state.gameId;
+    els.seatedList.innerHTML = '';
+    const players = state.seatedPlayers;
+    els.seatedEmpty.hidden = players.length > 0;
+    players.forEach(p => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span>${escapeHtml(p.name)}</span><span class="stake">$${p.initialMoney.toFixed(2)}</span>`;
+      els.seatedList.appendChild(li);
+    });
+    els.dealBtn.disabled = players.length === 0;
+  }
+
+  function escapeHtml(s){
+    return (s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ---------- table (in-progress / finished) ----------
+  function renderTable(){
+    const g = state.game;
+    if(!g) return;
+
+    els.tableGameId.textContent = g.gameId;
+    els.statusTag.textContent = g.status;
+
+    renderHand(els.dealerHand, g.dealer ? g.dealer.hand : []);
+    if(g.dealer){
+      els.dealerScore.textContent = 'score ' + g.dealer.score;
+      els.dealerScore.className = 'score-badge' + (g.dealer.busted ? ' bust' : '');
+    }
+
+    // last move
+    if(g.lastMove){
+      const mover = (g.players || []).find(p => p.id === g.lastMove.playerId);
+      const name = mover ? mover.name : 'Someone';
+      const verb = g.lastMove.move === 'stand' ? 'stood' : 'hit';
+      const cardTxt = g.lastMove.cardDrawn ? `, drew <b>${g.lastMove.cardDrawn}</b>` : '';
+      els.lastMove.innerHTML = `<b>${escapeHtml(name)}</b> ${verb}${cardTxt}`;
+    } else {
+      els.lastMove.textContent = '';
+    }
+
+    // players
+    els.playersZone.innerHTML = '';
+    const currentId = (g.status === 'IN_PROGRESS' && g.players && g.players[g.currentPlayerIndex])
+      ? g.players[g.currentPlayerIndex].id
+      : null;
+
+    (g.players || []).forEach(p => {
+      const seat = document.createElement('div');
+      seat.className = 'seat';
+      if(p.id === currentId) seat.classList.add('turn');
+      if(g.status === 'FINISHED' && g.winnerId === p.id) seat.classList.add('winner');
+
+      let badgeHtml = '';
+      if(p.score !== null && p.score !== undefined){
+        const bustClass = p.busted ? ' bust' : '';
+        badgeHtml = `<div class="score-badge${bustClass}">score ${p.score}${p.busted ? ' · bust' : ''}</div>`;
+      }
+
+      seat.innerHTML = `
+        ${p.id === currentId ? '<div class="turn-flag">acting</div>' : ''}
+        <div class="name">${escapeHtml(p.name)}${g.winnerId === p.id ? ' 🏆' : ''}</div>
+        <div class="balance">$${p.balance.toFixed(2)}</div>
+        <div class="hand" id="hand-${p.id}"></div>
+        ${badgeHtml}
+      `;
+      els.playersZone.appendChild(seat);
+      renderHand(seat.querySelector('.hand'), p.hand);
+    });
+
+    // action bar
+    els.actionBar.innerHTML = '';
+    if(g.status === 'IN_PROGRESS' && currentId){
+      const currentPlayer = g.players.find(p => p.id === currentId);
+      const label = document.createElement('span');
+      label.className = 'whose-turn';
+      label.textContent = (currentPlayer ? currentPlayer.name : 'Player') + '\u2019s move:';
+      els.actionBar.appendChild(label);
+
+      const hitBtn = document.createElement('button');
+      hitBtn.className = 'btn btn-gold';
+      hitBtn.textContent = 'Hit';
+      hitBtn.onclick = () => play(currentId, 'hit');
+
+      const standBtn = document.createElement('button');
+      standBtn.className = 'btn btn-outline';
+      standBtn.textContent = 'Stand';
+      standBtn.onclick = () => play(currentId, 'stand');
+
+      els.actionBar.appendChild(hitBtn);
+      els.actionBar.appendChild(standBtn);
+    }
+
+    // winner banner
+    els.winnerBannerWrap.innerHTML = '';
+    if(g.status === 'FINISHED'){
+      const winner = (g.players || []).find(p => p.id === g.winnerId);
+      const banner = document.createElement('div');
+      banner.className = 'winner-banner';
+      banner.innerHTML = `
+        <div class="title">${winner ? escapeHtml(winner.name) + ' wins the hand' : 'Hand settled'}</div>
+        <div class="sub">${g.dealer && g.dealer.busted ? 'The dealer busted.': 'The dealer stands.'}</div>
+        <div class="winner-actions">
+          <button class="btn btn-gold" id="rematch-btn">New table</button>
+        </div>
+      `;
+      els.winnerBannerWrap.appendChild(banner);
+      $('rematch-btn').onclick = resetToSetup;
+    }
+
+    loadRanking();
+  }
+
+  // ---------- actions ----------
+  async function connect(){
+    state.baseUrl = els.baseUrlInput.value.trim() || 'http://localhost:8080';
+    await checkConnection();
+    if(state.connected){
+      toast('Connected to ' + state.baseUrl);
+    } else {
+      toast('Could not reach ' + state.baseUrl);
+    }
+  }
+
+  async function createGame(){
+    try{
+      const g = await api('/games', { method: 'POST' });
+      state.gameId = g.gameId;
+      state.game = g;
+      state.seatedPlayers = [];
+      renderLobby();
+    }catch(err){ toast(err.message); }
+  }
+
+  async function addPlayer(){
+    const name = els.playerName.value.trim();
+    const stakeRaw = parseFloat(els.playerStake.value);
+    if(!name){ toast('Enter a player name.'); return; }
+    if(!(stakeRaw >= 0)){ toast('Enter a valid starting stake.'); return; }
+    try{
+      const g = await api(`/games/${state.gameId}/players`, {
+        method: 'POST',
+        body: JSON.stringify({ name, initialMoney: { amount: stakeRaw } }),
+      });
+      state.game = g;
+      state.seatedPlayers = (g.players || []).map(p => ({ id: p.id, name: p.name, initialMoney: p.balance }));
+      els.playerName.value = '';
+      renderLobby();
+    }catch(err){ toast(err.message); }
+  }
+
+  async function dealCards(){
+    try{
+      const g = await api(`/games/${state.gameId}/start`, { method: 'POST' });
+      state.game = g;
+      showTable();
+      renderTable();
+    }catch(err){ toast(err.message); }
+  }
+
+  async function play(playerId, moveType){
+    try{
+      const g = await api(`/games/${state.gameId}/play`, {
+        method: 'POST',
+        body: JSON.stringify({ playerId, moveType }),
+      });
+      state.game = g;
+      renderTable();
+    }catch(err){ toast(err.message); }
+  }
+
+  async function loadRanking(){
+    if(!state.gameId) return;
+    try{
+      const list = await api(`/ranking?gameId=${state.gameId}`);
+      const sorted = (list || []).slice().sort((a,b) => b.balance - a.balance);
+      els.rankList.innerHTML = '';
+      els.rankEmpty.hidden = sorted.length > 0;
+      sorted.forEach((entry, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="pos">${i+1}</span><span class="rname">${escapeHtml(entry.playerName)}</span><span class="rbal">$${Number(entry.balance).toFixed(2)}</span>`;
+        els.rankList.appendChild(li);
+      });
+    }catch(err){
+      // ranking is a nice-to-have; don't spam toasts if it fails
+      els.rankEmpty.hidden = false;
+    }
+  }
+
+  async function leaveTable(){
+    if(!state.gameId) { resetToSetup(); return; }
+    try{
+      await api(`/games/${state.gameId}`, { method: 'DELETE' });
+    }catch(err){ /* table may already be gone; proceed regardless */ }
+    resetToSetup();
+  }
+
+  function resetToSetup(){
+    state.gameId = null;
+    state.game = null;
+    state.seatedPlayers = [];
+    showSetup();
+    renderLobby();
+  }
+
+  // ---------- wire up ----------
+  els.connBtn.addEventListener('click', connect);
+  els.createGameBtn.addEventListener('click', createGame);
+  els.addPlayerBtn.addEventListener('click', addPlayer);
+  els.playerName.addEventListener('keydown', e => { if(e.key === 'Enter') addPlayer(); });
+  els.playerStake.addEventListener('keydown', e => { if(e.key === 'Enter') addPlayer(); });
+  els.dealBtn.addEventListener('click', dealCards);
+  els.refreshRank.addEventListener('click', loadRanking);
+  els.leaveTableBtn.addEventListener('click', leaveTable);
+
+  // init
+  els.baseUrlInput.value = state.baseUrl;
+  showSetup();
+  renderLobby();
+  checkConnection();
+})();
+</script>
+</body>
+</html>
