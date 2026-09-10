@@ -860,7 +860,7 @@
       banner.className = 'winner-banner';
       banner.innerHTML = `
         <div class="title">${winner ? escapeHtml(winner.name) + ' wins the hand' : 'Hand settled'}</div>
-        <div class="sub">${g.dealer && g.dealer.busted ? 'The dealer busted.' : 'The dealer stands.'}</div>
+        <div class="sub">${g.dealer && g.dealer.busted ? 'The dealer busted.': 'The dealer stands.'}</div>
         <div class="winner-actions">
           <button class="btn btn-gold" id="rematch-btn">New table</button>
         </div>
